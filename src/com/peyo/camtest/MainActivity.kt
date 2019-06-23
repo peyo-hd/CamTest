@@ -1,46 +1,42 @@
 package com.peyo.camtest
 
 import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
-import android.hardware.Camera
 import android.os.Bundle
-import android.view.SurfaceHolder
-import android.view.SurfaceView
+import android.view.TextureView
+import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraX
+import androidx.camera.core.Preview
+import androidx.camera.core.PreviewConfig
 
-class MainActivity : Activity() , SurfaceHolder.Callback{
-    lateinit var mCamera: Camera
-    lateinit var mHolder: SurfaceHolder
+class MainActivity : AppCompatActivity() {
+    lateinit var viewFinder: TextureView
 
     override fun onCreate(savedInstanceState: Bundle?) {
 	    super.onCreate(savedInstanceState)
 
-        val view = SurfaceView(this)
-        setContentView(view)
-
-        mHolder = view.holder
-        mHolder.addCallback(this)
+        viewFinder = TextureView(this)
+        setContentView(viewFinder)
 
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(arrayOf(Manifest.permission.CAMERA), 0)
-        mCamera = Camera.open()
+        else
+            viewFinder.post{ startCamera() }
+
     }
 
-    override fun surfaceCreated(p0: SurfaceHolder?) {
-        mCamera.apply {
-            setPreviewDisplay(mHolder)
-            startPreview()
+    private fun startCamera() {
+        val config = PreviewConfig.Builder().build()
+        val preview = Preview(config)
+
+        preview.setOnPreviewOutputUpdateListener {
+            val parent = viewFinder.parent as ViewGroup
+            parent.removeView(viewFinder)
+            parent.addView(viewFinder, 0)
+            viewFinder.surfaceTexture = it.surfaceTexture
         }
-    }
 
-    override fun onPause() {
-        super.onPause()
-        finish()
-    }
-
-    override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
-    }
-
-    override fun surfaceDestroyed(p0: SurfaceHolder?) {
+        CameraX.bindToLifecycle(this, preview)
     }
 }
