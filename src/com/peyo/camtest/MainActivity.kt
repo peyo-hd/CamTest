@@ -23,10 +23,10 @@ class MainActivity : Activity() , SurfaceHolder.Callback{
 
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(arrayOf(Manifest.permission.CAMERA), 0)
-        mCamera = Camera.open()
+        mCamera = Camera.open(0)
     }
 
-    override fun surfaceCreated(p0: SurfaceHolder?) {
+    override fun surfaceCreated(p0: SurfaceHolder) {
         mCamera.apply {
             setPreviewDisplay(mHolder)
             startPreview()
@@ -38,9 +38,9 @@ class MainActivity : Activity() , SurfaceHolder.Callback{
         finish()
     }
 
-    override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
+    override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
     }
 
-    override fun surfaceDestroyed(p0: SurfaceHolder?) {
+    override fun surfaceDestroyed(p0: SurfaceHolder) {
     }
 }
